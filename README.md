@@ -4,6 +4,10 @@ the proxy client library
 
 supported SOCK4, SOCKS4A, SOCKS5, HTTP, HTTPS, etc proxy protocols
 
+# Documentation
+
+The full documentation is available on [Godoc](//godoc.org/github.com/septs/ProxyClient).
+
 # Example
 ```go
 package main 
