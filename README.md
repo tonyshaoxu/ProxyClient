@@ -6,7 +6,7 @@ supported SOCK4, SOCKS4A, SOCKS5, HTTP, HTTPS, etc proxy protocols
 
 # Documentation
 
-The full documentation is available on [Godoc](//godoc.org/github.com/septs/ProxyClient).
+The full documentation is available on [Godoc](//godoc.org/github.com/RouterScript/ProxyClient).
 
 # Example
 ```go
@@ -14,7 +14,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/septs/ProxyClient"
+	"github.com/RouterScript/ProxyClient"
 )
 
 func main() {
