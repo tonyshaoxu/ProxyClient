@@ -5,7 +5,7 @@ import (
 	"net/url"
 )
 
-func NewDirectProxyClient(url *url.URL) (Client, error) {
+func newDirectProxyClient(url *url.URL) (Client, error) {
 	localAddr := ":0"
 	if url != nil {
 		localAddr = url.Host

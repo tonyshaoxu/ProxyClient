@@ -16,19 +16,19 @@ type ClientBuilder func(*url.URL) (Client, error)
 
 var schemes = map[string]ClientBuilder{
 	// DIRECT
-	"direct":    NewDirectProxyClient,
+	"direct":    newDirectProxyClient,
 	// SOCKS
-	"socks":     NewSocksProxyClient,
-	"socks4":    NewSocksProxyClient,
-	"socks4a":   NewSocksProxyClient,
-	"socks5":    NewSocksProxyClient,
+	"socks":     newSocksProxyClient,
+	"socks4":    newSocksProxyClient,
+	"socks4a":   newSocksProxyClient,
+	"socks5":    newSocksProxyClient,
 	// HTTP
-	"http":      NewHTTPProxyClient,
-	"https":     NewHTTPProxyClient,
+	"http":      newHTTPProxyClient,
+	"https":     newHTTPProxyClient,
 	// Shadowsocks
-	"ss":        NewShadowsocksProxyClient,
+	"ss":        newShadowsocksProxyClient,
 	// SSH
-	"ssh":       NewSSHAgentProxyClient,
+	"ssh":       newSSHAgentProxyClient,
 }
 
 func NewProxyClient(proxy string) (Client, error) {

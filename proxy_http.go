@@ -8,7 +8,7 @@ import (
 	"net/url"
 )
 
-func NewHTTPProxyClient(url *url.URL) (Client, error) {
+func newHTTPProxyClient(url *url.URL) (Client, error) {
 	tlsConfig := &tls.Config{
 		ServerName:        url.Query().Get("tls-domain"),
 		InsecureSkipVerify:url.Query().Get("tls-insecure-skip-verify") == "true",

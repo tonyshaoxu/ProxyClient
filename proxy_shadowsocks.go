@@ -6,7 +6,7 @@ import (
 	ss "github.com/shadowsocks/shadowsocks-go/shadowsocks"
 )
 
-func NewShadowsocksProxyClient(url *url.URL) (Client, error) {
+func newShadowsocksProxyClient(url *url.URL) (Client, error) {
 	username := url.User.Username()
 	password, _ := url.User.Password()
 	cipher, err := ss.NewCipher(username, password)

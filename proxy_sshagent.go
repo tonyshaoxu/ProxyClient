@@ -11,7 +11,7 @@ type sshagentProxyClient struct {
 	*ssh.Client
 }
 
-func NewSSHAgentProxyClient(url *url.URL) (Client, error) {
+func newSSHAgentProxyClient(url *url.URL) (Client, error) {
 	conf := &ssh.ClientConfig{
 		User: url.User.Username(),
 		Auth: sshagentAuth(url),

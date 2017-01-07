@@ -12,7 +12,7 @@ type socksProxyClient struct {
 	url *url.URL
 }
 
-func NewSocksProxyClient(url *url.URL) (Client, error) {
+func newSocksProxyClient(url *url.URL) (Client, error) {
 	client := &socksProxyClient{url}
 	return client, nil
 }
