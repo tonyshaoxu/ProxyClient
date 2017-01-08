@@ -1,12 +1,22 @@
 package proxyclient
 
 import (
+	"encoding/base64"
+	"fmt"
 	"net"
 	"net/url"
+
 	ss "github.com/shadowsocks/shadowsocks-go/shadowsocks"
 )
 
 func newShadowsocksProxyClient(url *url.URL) (Client, error) {
+	if content, err := base64.StdEncoding.DecodeString(url.Host); err == nil {
+		link := fmt.Sprintf("ss://%s", string(content))
+		url, err = url.Parse(link)
+		if err != nil {
+			return nil, err
+		}
+	}
 	username := url.User.Username()
 	password, _ := url.User.Password()
 	cipher, err := ss.NewCipher(username, password)
