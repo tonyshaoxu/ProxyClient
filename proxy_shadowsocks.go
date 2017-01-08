@@ -9,22 +9,23 @@ import (
 	ss "github.com/shadowsocks/shadowsocks-go/shadowsocks"
 )
 
-func newShadowsocksProxyClient(url *url.URL) (Client, error) {
+func newShadowsocksProxyClient(url *url.URL) (client Client, err error) {
 	if content, err := base64.StdEncoding.DecodeString(url.Host); err == nil {
-		link := fmt.Sprintf("ss://%s", string(content))
-		url, err = url.Parse(link)
+		url, err = url.Parse(fmt.Sprintf("ss://%s", string(content)))
 		if err != nil {
 			return nil, err
 		}
 	}
-	username := url.User.Username()
-	password, _ := url.User.Password()
-	cipher, err := ss.NewCipher(username, password)
-	if err != nil {
-		return nil, err
+	var cipher *ss.Cipher
+	if password, ok := url.User.Password(); ok {
+		username := url.User.Username()
+		cipher, err = ss.NewCipher(username, password)
+		if err != nil {
+			return
+		}
 	}
-	client := &shadowsocksProxyClient{url, cipher}
-	return client, nil
+	client = &shadowsocksProxyClient{url, cipher}
+	return
 }
 
 type shadowsocksProxyClient struct {
