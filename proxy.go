@@ -9,7 +9,7 @@ import (
 	socksProxy "github.com/RouterScript/SOCKSProxy"
 )
 
-func newDirectProxyClient(proxy *url.URL, _ Dial) (Dial, error) {
+func newDirectProxyClient(_ *url.URL, _ Dial) (Dial, error) {
 	return net.Dial, nil
 }
 

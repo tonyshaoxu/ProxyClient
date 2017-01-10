@@ -1,8 +1,8 @@
 # ProxyClient
 
-the proxy sshConn library
+the proxy client library
 
-supported SOCK4, SOCKS4A, SOCKS5, HTTP, HTTPS, etc proxy protocols
+supported SOCK4, SOCKS4A, SOCKS5, HTTP, HTTPS etc proxy protocols
 
 # Documentation
 
