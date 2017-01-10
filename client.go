@@ -1,50 +1,43 @@
 package proxyclient
 
 import (
+	"errors"
 	"net"
 	"net/url"
 	"strings"
 )
 
-type Client interface {
-	Dial(network, address string) (net.Conn, error)
-	DialTCP(net string, localAddr, remoteAddr *net.TCPAddr) (net.Conn, error)
-	DialUDP(net string, localAddr, remoteAddr *net.UDPAddr) (net.Conn, error)
-}
+type Dial func(network, address string) (net.Conn, error)
 
-type ClientBuilder func(*url.URL) (Client, error)
+type DialBuilder func(*url.URL, Dial) (Dial, error)
 
-var schemes = map[string]ClientBuilder{
+var schemes = map[string]DialBuilder{
 	// DIRECT
-	"direct":    newDirectProxyClient,
+	"DIRECT":    newDirectProxyClient,
 	// SOCKS
-	"socks":     newSocksProxyClient,
-	"socks4":    newSocksProxyClient,
-	"socks4a":   newSocksProxyClient,
-	"socks5":    newSocksProxyClient,
+	"SOCKS":     newSocksProxyClient,
+	"SOCKS4":    newSocksProxyClient,
+	"SOCKS4A":   newSocksProxyClient,
+	"SOCKS5":    newSocksProxyClient,
 	// HTTP
-	"http":      newHTTPProxyClient,
-	"https":     newHTTPProxyClient,
-	// Shadowsocks
-	"ss":        newShadowsocksProxyClient,
-	// SSH
-	"ssh":       newSSHAgentProxyClient,
+	"HTTP":      newHTTPProxyClient,
+	"HTTPS":     newHTTPProxyClient,
 }
 
-func NewProxyClient(proxy string) (Client, error) {
+func NewProxyClient(proxy string) (Dial, error) {
 	link, err := url.Parse(proxy)
 	if err != nil {
 		return nil, err
 	}
 	link = normalizeLink(*link)
 	if factory, ok := schemes[link.Scheme]; ok {
-		return factory(link)
+		return factory(link, net.Dial)
 	}
-	return nil, ErrUnsupportedProtocol
+	return nil, errors.New("Unsupported proxy client.")
 }
 
-func RegisterScheme(schemeName string, factory ClientBuilder) {
-	schemes[strings.ToLower(schemeName)] = factory
+func RegisterScheme(schemeName string, factory DialBuilder) {
+	schemes[strings.ToUpper(schemeName)] = factory
 }
 
 func SupportedSchemes() []string {

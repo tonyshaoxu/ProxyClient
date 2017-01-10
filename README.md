@@ -1,6 +1,6 @@
 # ProxyClient
 
-the proxy c library
+the proxy sshConn library
 
 supported SOCK4, SOCKS4A, SOCKS5, HTTP, HTTPS, etc proxy protocols
 
@@ -14,22 +14,27 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"github.com/RouterScript/ProxyClient"
 )
 
 func main() {
-	proxy, _ := proxyclient.NewProxyClient("http://localhost:1080")
+	dial, _ := proxyclient.NewProxyClient("http://localhost:8080")
 	client := &http.Client{
 		Transport: &http.Transport{
-			Dial: proxy.Dial,
+			Dial: dial,
 		},
 	}
-	response, err := client.Head("http://www.google.com")
+	request, err := client.Get("http://www.example.com")
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(response.Body)
+	content, err := ioutil.ReadAll(request.Body)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(string(content))
 }
 ```
 

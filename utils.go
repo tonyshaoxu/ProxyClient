@@ -1,32 +1,42 @@
 package proxyclient
 
 import (
+	"errors"
+	"net"
 	"net/url"
 	"strings"
 )
 
-func isTCPNetwork(network string) bool {
-	switch strings.ToLower(network) {
-	case "tcp", "tcp4", "tcp6":
-		return true
+func limitSchemes(proxy *url.URL, names ...string) bool {
+	if proxy == nil {
+		return false
+	}
+	schemeName := strings.ToUpper(proxy.Scheme)
+	for _, name := range names {
+		if strings.EqualFold(schemeName, strings.ToUpper(name)) {
+			return true
+		}
 	}
 	return false
 }
 
-func isUDPNetwork(network string) bool {
-	switch strings.ToLower(network) {
-	case "udp", "udp4", "udp6":
-		return true
+func dialTCPOnly(dial Dial) Dial {
+	return func(network, address string) (net.Conn, error) {
+		switch strings.ToUpper(network) {
+		case "TCP", "TCP4", "TCP6":
+			return dial(network, address)
+		default:
+			return nil, errors.New("Unsupported network type.")
+		}
 	}
-	return false
 }
 
 func normalizeLink(link url.URL) *url.URL {
-	if link.Path == "direct" {
+	if strings.ToUpper(link.Path) == "DIRECT" {
 		link.Scheme = link.Path
 		link.Path = ""
 	}
-	link.Scheme = strings.ToLower(link.Scheme)
+	link.Scheme = strings.ToUpper(link.Scheme)
 	query := link.Query()
 	for name, value := range query {
 		query[strings.ToLower(name)] = value

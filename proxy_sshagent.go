@@ -1,36 +1,37 @@
 package proxyclient
 
 import (
+	"errors"
 	"io/ioutil"
-	"net"
 	"net/url"
+
 	"golang.org/x/crypto/ssh"
 )
 
-type sshagentProxyClient struct {
-	*ssh.Client
-}
-
-func newSSHAgentProxyClient(url *url.URL) (Client, error) {
+func NewSSHAgentProxyClient(proxy *url.URL, upstreamDial Dial) (dial Dial, err error) {
+	if !limitSchemes(proxy, "ssh") {
+		return nil, errors.New("scheme is not SSH")
+	}
 	conf := &ssh.ClientConfig{
-		User: url.User.Username(),
-		Auth: sshagentAuth(url),
+		User: proxy.User.Username(),
+		Auth: sshagentAuth(proxy),
 	}
-	sshClient, err := ssh.Dial("tcp", url.Host, conf)
+	conn, err := upstreamDial("tcp", proxy.Host)
 	if err != nil {
-		return nil, err
+		return
 	}
-	client := &sshagentProxyClient{sshClient}
-	return client, nil
+	sshConn, sshChans, sshRequests, err := ssh.NewClientConn(conn, proxy.Host, conf)
+	if err != nil {
+		return
+	}
+	sshClient := ssh.NewClient(sshConn, sshChans, sshRequests)
+	dial = dialTCPOnly(sshClient.Dial)
+	return
 }
 
-func (client *sshagentProxyClient) DialUDP(network string, localAddr, remoteAddr *net.UDPAddr) (net.Conn, error) {
-	return nil, ErrUnsupportedProtocol
-}
-
-func sshagentAuth(url *url.URL) []ssh.AuthMethod {
+func sshagentAuth(proxy *url.URL) []ssh.AuthMethod {
 	methods := []ssh.AuthMethod{}
-	publicKey := url.Query().Get("public-key")
+	publicKey := proxy.Query().Get("public-key")
 	if publicKey != "" {
 		buffer, err := ioutil.ReadFile(publicKey)
 		if err != nil {
@@ -43,7 +44,7 @@ func sshagentAuth(url *url.URL) []ssh.AuthMethod {
 		method := ssh.PublicKeys(key)
 		methods = append(methods, method)
 	}
-	if password, ok := url.User.Password(); ok {
+	if password, ok := proxy.User.Password(); ok {
 		method := ssh.Password(password)
 		methods = append(methods, method)
 	}
