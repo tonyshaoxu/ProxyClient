@@ -6,7 +6,7 @@ import (
 	"net/url"
 )
 
-func newSplitPacketProxyClient(_ *url.URL, upstreamDial Dial) (Dial, error) {
+func NewSplitPacketProxyClient(_ *url.URL, upstreamDial Dial) (Dial, error) {
 	dial := func(network, address string) (net.Conn, error) {
 		conn, err := upstreamDial(network, address)
 		return splitPacketConn{conn}, err

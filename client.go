@@ -25,13 +25,17 @@ var schemes = map[string]DialBuilder{
 }
 
 func NewProxyClient(proxy string) (Dial, error) {
+	return NewProxyClientWithDial(proxy, net.Dial)
+}
+
+func NewProxyClientWithDial(proxy string, dial Dial) (Dial, error) {
 	link, err := url.Parse(proxy)
 	if err != nil {
 		return nil, err
 	}
 	link = normalizeLink(*link)
 	if factory, ok := schemes[link.Scheme]; ok {
-		return factory(link, net.Dial)
+		return factory(link, dial)
 	}
 	return nil, errors.New("Unsupported proxy client.")
 }
