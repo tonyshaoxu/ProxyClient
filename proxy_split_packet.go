@@ -7,21 +7,24 @@ import (
 )
 
 func NewSplitPacketProxyClient(_ *url.URL, upstreamDial Dial) (Dial, error) {
-	dial := func(network, address string) (net.Conn, error) {
-		conn, err := upstreamDial(network, address)
-		return splitPacketConn{conn}, err
+	dial := func(network, address string) (conn net.Conn, err error) {
+		conn, err = upstreamDial(network, address)
+		if err != nil {
+			return
+		}
+		return splitPacketWriter{conn}, err
 	}
 	return dial, nil
 }
 
-type splitPacketConn struct{ net.Conn }
+type splitPacketWriter struct{ net.Conn }
 
-func (conn *splitPacketConn) Write(packet []byte) (n int, err error) {
+func (conn splitPacketWriter) Write(packet []byte) (n int, err error) {
 	for _, spittedPacket := range splitHTTPPacket(packet) {
 		writeLen, err := conn.Conn.Write(spittedPacket)
 		n += writeLen
 		if err != nil {
-			return
+			return n, err
 		}
 	}
 	return
