@@ -14,6 +14,11 @@ type DialBuilder func(*url.URL, Dial) (Dial, error)
 var schemes = map[string]DialBuilder{
 	// DIRECT
 	"DIRECT":    newDirectProxyClient,
+	// REJECT
+	"REJECT":    newRejectProxyClient,
+	// BLACKHOLE
+	"DROP":      newBlackholeProxyClient,
+	"BLACKHOLE": newBlackholeProxyClient,
 	// SOCKS
 	"SOCKS":     newSocksProxyClient,
 	"SOCKS4":    newSocksProxyClient,

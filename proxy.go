@@ -2,6 +2,7 @@ package proxyclient
 
 import (
 	"crypto/tls"
+	"errors"
 	"net"
 	"net/url"
 
@@ -13,7 +14,14 @@ func newDirectProxyClient(_ *url.URL, _ Dial) (Dial, error) {
 	return net.Dial, nil
 }
 
-func newHTTPProxyClient(proxy *url.URL, upstreamDial Dial) (Dial, error) {
+func newRejectProxyClient(_ *url.URL, _ Dial) (Dial, error) {
+	dial := func(network, address string) (net.Conn, error) {
+		return nil, errors.New("reject dial")
+	}
+	return dial, nil
+}
+
+func newHTTPProxyClient(proxy *url.URL, upstreamDial Dial) (dial Dial, err error) {
 	client := httpProxy.Client{
 		Proxy:       *proxy,
 		TLSConfig:   &tls.Config{
@@ -25,7 +33,8 @@ func newHTTPProxyClient(proxy *url.URL, upstreamDial Dial) (Dial, error) {
 	if client.TLSConfig.ServerName == "" {
 		client.TLSConfig.ServerName = proxy.Host
 	}
-	return dialTCPOnly(client.Dial), nil
+	dial = dialTCPOnly(client.Dial)
+	return
 }
 
 func newSocksProxyClient(proxy *url.URL, upstreamDial Dial) (dial Dial, err error) {

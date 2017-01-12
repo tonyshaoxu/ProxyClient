@@ -32,7 +32,8 @@ func dialTCPOnly(dial Dial) Dial {
 }
 
 func normalizeLink(link url.URL) *url.URL {
-	if strings.ToUpper(link.Path) == "DIRECT" {
+	switch strings.ToUpper(link.Path) {
+	case "DIRECT", "REJECT", "DROP", "BLACKHOLE":
 		link.Scheme = link.Path
 		link.Path = ""
 	}
