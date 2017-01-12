@@ -12,14 +12,14 @@ func NewSplitPacketProxyClient(_ *url.URL, upstreamDial Dial) (Dial, error) {
 		if err != nil {
 			return
 		}
-		return splitPacketWriter{conn}, err
+		return splitPacketConn{conn}, err
 	}
 	return dial, nil
 }
 
-type splitPacketWriter struct{ net.Conn }
+type splitPacketConn struct{ net.Conn }
 
-func (conn splitPacketWriter) Write(packet []byte) (n int, err error) {
+func (conn splitPacketConn) Write(packet []byte) (n int, err error) {
 	for _, spittedPacket := range splitHTTPPacket(packet) {
 		writeLen, err := conn.Conn.Write(spittedPacket)
 		n += writeLen
