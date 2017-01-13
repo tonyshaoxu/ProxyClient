@@ -17,7 +17,7 @@ func newBlackholeProxyClient(_ *url.URL, _ Dial) (Dial, error) {
 type blackholeConn struct{}
 
 func (conn blackholeConn) Read([]byte) (int, error)           { return 0, nil }
-func (conn blackholeConn) Write([]byte) (int, error)          { return 0, nil }
+func (conn blackholeConn) Write(buffer []byte) (int, error)   { return len(buffer), nil }
 func (conn blackholeConn) Close() error                       { return nil }
 func (conn blackholeConn) LocalAddr() net.Addr                { return nil }
 func (conn blackholeConn) RemoteAddr() net.Addr               { return nil }
