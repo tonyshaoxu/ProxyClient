@@ -33,6 +33,10 @@ func NewProxyClient(proxy string) (Dial, error) {
 	return NewProxyClientWithDial(proxy, net.Dial)
 }
 
+func NewProxyClientChain(proxies []string) (Dial, error) {
+	return NewProxyClientChainWithDial(proxies, net.Dial)
+}
+
 func NewProxyClientWithDial(proxy string, dial Dial) (Dial, error) {
 	link, err := url.Parse(proxy)
 	if err != nil {
@@ -43,6 +47,17 @@ func NewProxyClientWithDial(proxy string, dial Dial) (Dial, error) {
 		return factory(link, dial)
 	}
 	return nil, errors.New("Unsupported proxy client.")
+}
+
+func NewProxyClientChainWithDial(proxies []string, upstreamDial Dial) (dial Dial, err error) {
+	dial = upstreamDial
+	for _, proxy := range proxies {
+		dial, err = NewProxyClientWithDial(proxy, dial)
+		if err != nil {
+			return
+		}
+	}
+	return
 }
 
 func RegisterScheme(schemeName string, factory DialBuilder) {
