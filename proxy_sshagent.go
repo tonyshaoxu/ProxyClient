@@ -25,7 +25,8 @@ func NewSSHAgentProxyClient(proxy *url.URL, upstreamDial Dial) (dial Dial, err e
 		return
 	}
 	sshClient := ssh.NewClient(sshConn, sshChans, sshRequests)
-	dial = dialTCPOnly(sshClient.Dial)
+	dial = sshClient.Dial
+	dial = dial.TCPOnly()
 	return
 }
 

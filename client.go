@@ -70,5 +70,18 @@ func SupportedSchemes() []string {
 }
 
 func (dial Dial) WrappedContext() func(ctx context.Context, network, address string) (net.Conn, error) {
-	return func(ctx context.Context, network, address string) (net.Conn, error) { return dial(network, address) }
+	return func(ctx context.Context, network, address string) (net.Conn, error) {
+		return dial(network, address)
+	}
+}
+
+func (dial Dial) TCPOnly() Dial {
+	return func(network, address string) (net.Conn, error) {
+		switch strings.ToUpper(network) {
+		case "TCP", "TCP4", "TCP6":
+			return dial(network, address)
+		default:
+			return nil, errors.New("Unsupported network type.")
+		}
+	}
 }

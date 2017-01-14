@@ -28,7 +28,7 @@ func NewShadowsocksProxyClient(proxy *url.URL, upstreamDial Dial) (dial Dial, er
 			return
 		}
 	}
-	dial = dialTCPOnly(func(network, address string) (ssConn net.Conn, err error) {
+	dial = func(network, address string) (ssConn net.Conn, err error) {
 		conn, err := upstreamDial("tcp", proxy.Host)
 		if err != nil {
 			return
@@ -43,6 +43,7 @@ func NewShadowsocksProxyClient(proxy *url.URL, upstreamDial Dial) (dial Dial, er
 			return
 		}
 		return
-	})
+	}
+	dial = dial.TCPOnly()
 	return
 }

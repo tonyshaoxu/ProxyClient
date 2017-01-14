@@ -6,15 +6,16 @@ import (
 	"net/url"
 )
 
-func NewSplitPacketProxyClient(_ *url.URL, upstreamDial Dial) (Dial, error) {
-	dial := func(network, address string) (conn net.Conn, err error) {
+func NewSplitPacketProxyClient(_ *url.URL, upstreamDial Dial) (dial Dial, err error) {
+	dial = func(network, address string) (conn net.Conn, err error) {
 		conn, err = upstreamDial(network, address)
 		if err != nil {
 			return
 		}
 		return splitPacketConn{conn}, err
 	}
-	return dial, nil
+	dial = dial.TCPOnly()
+	return
 }
 
 type splitPacketConn struct{ net.Conn }

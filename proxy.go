@@ -33,7 +33,7 @@ func newHTTPProxyClient(proxy *url.URL, upstreamDial Dial) (dial Dial, err error
 	if client.TLSConfig.ServerName == "" {
 		client.TLSConfig.ServerName = proxy.Host
 	}
-	dial = dialTCPOnly(client.Dial)
+	dial = Dial(client.Dial).TCPOnly()
 	return
 }
 
@@ -42,6 +42,7 @@ func newSocksProxyClient(proxy *url.URL, upstreamDial Dial) (dial Dial, err erro
 	if err != nil {
 		return
 	}
-	dial = dialTCPOnly(client.Dial)
+	dial = client.Dial
+	dial = dial.TCPOnly()
 	return
 }

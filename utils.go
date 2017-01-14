@@ -1,8 +1,6 @@
 package proxyclient
 
 import (
-	"errors"
-	"net"
 	"net/url"
 	"strings"
 )
@@ -18,17 +16,6 @@ func limitSchemes(proxy *url.URL, names ...string) bool {
 		}
 	}
 	return false
-}
-
-func dialTCPOnly(dial Dial) Dial {
-	return func(network, address string) (net.Conn, error) {
-		switch strings.ToUpper(network) {
-		case "TCP", "TCP4", "TCP6":
-			return dial(network, address)
-		default:
-			return nil, errors.New("Unsupported network type.")
-		}
-	}
 }
 
 func normalizeLink(link url.URL) *url.URL {
