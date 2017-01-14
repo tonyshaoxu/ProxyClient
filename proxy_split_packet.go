@@ -44,8 +44,9 @@ func splitHTTPPacket(buffer []byte) (response [][]byte) {
 		}
 		packets := splitPacket(buffer, cursor+1)
 		packets = append([][]byte{packets[0]}, splitPacket(packets[1], pos)...)
-		return append(response[:len(packets) - 1], splitHTTPPacket(packets[len(packets) - 1])...)
+		return append(packets[:len(packets) - 1], splitHTTPPacket(packets[len(packets) - 1])...)
 	}
+	response = [][]byte{buffer}
 	for cursor, ch := range buffer {
 		switch ch {
 		case 'G':
@@ -57,13 +58,10 @@ func splitHTTPPacket(buffer []byte) (response [][]byte) {
 		case 'H':
 			response = compose(cursor, 8, []byte("OST "))
 			if response != nil {
-				return response
+				return
 			}
 			response = compose(cursor, 9, []byte("TTP "))
 		}
-	}
-	if response == nil {
-		return [][]byte{buffer}
 	}
 	return response
 }
