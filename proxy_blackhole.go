@@ -7,11 +7,11 @@ import (
 	"time"
 )
 
-func newBlackholeProxyClient(_ *url.URL, _ Dial) (Dial, error) {
-	dial := func(network, address string) (net.Conn, error) {
+func newBlackholeProxyClient(_ *url.URL, _ Dial) (dial Dial, err error) {
+	dial = func(network, address string) (net.Conn, error) {
 		return blackholeConn{}, nil
 	}
-	return dial, nil
+	return
 }
 
 type blackholeConn struct{}

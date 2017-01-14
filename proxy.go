@@ -23,11 +23,11 @@ func newDirectProxyClient(proxy *url.URL, _ Dial) (dial Dial, err error) {
 	return
 }
 
-func newRejectProxyClient(_ *url.URL, _ Dial) (Dial, error) {
-	dial := func(network, address string) (net.Conn, error) {
+func newRejectProxyClient(_ *url.URL, _ Dial) (dial Dial, err error) {
+	dial = func(network, address string) (net.Conn, error) {
 		return nil, errors.New("reject dial")
 	}
-	return dial, nil
+	return
 }
 
 func newHTTPProxyClient(proxy *url.URL, upstreamDial Dial) (dial Dial, err error) {
