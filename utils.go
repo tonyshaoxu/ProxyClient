@@ -1,8 +1,10 @@
 package proxyclient
 
 import (
+	"net"
 	"net/url"
 	"strings"
+	"time"
 )
 
 func limitSchemes(proxy *url.URL, names ...string) bool {
@@ -30,4 +32,10 @@ func normalizeLink(link url.URL) *url.URL {
 		query[strings.ToLower(name)] = value
 	}
 	return &link
+}
+
+func DialWithTimeout(timeout time.Duration) Dial {
+	return func(network, address string) (net.Conn, error) {
+		return net.DialTimeout(network, address, timeout)
+	}
 }

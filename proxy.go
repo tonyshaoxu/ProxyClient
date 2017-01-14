@@ -5,13 +5,22 @@ import (
 	"errors"
 	"net"
 	"net/url"
+	"time"
 
 	httpProxy "github.com/RouterScript/HTTPProxy"
 	socksProxy "github.com/RouterScript/SOCKSProxy"
 )
 
-func newDirectProxyClient(_ *url.URL, _ Dial) (Dial, error) {
-	return net.Dial, nil
+func newDirectProxyClient(proxy *url.URL, _ Dial) (dial Dial, err error) {
+	dial = net.Dial
+	if timeout := proxy.Query().Get("timeout"); timeout != "" {
+		dialTimeout, err := time.ParseDuration(timeout)
+		if err != nil {
+			return nil, err
+		}
+		dial = DialWithTimeout(dialTimeout)
+	}
+	return
 }
 
 func newRejectProxyClient(_ *url.URL, _ Dial) (Dial, error) {
