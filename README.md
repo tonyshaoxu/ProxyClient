@@ -23,7 +23,7 @@ func main() {
 	dial, _ := proxyclient.NewProxyClient("http://localhost:8080")
 	client := &http.Client{
 		Transport: &http.Transport{
-			Dial: dial,
+			DialContext: dial.WrappedContext(),
 		},
 	}
 	request, err := client.Get("http://www.example.com")

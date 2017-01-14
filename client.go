@@ -1,6 +1,7 @@
 package proxyclient
 
 import (
+	"context"
 	"errors"
 	"net"
 	"net/url"
@@ -29,24 +30,20 @@ var schemes = map[string]DialBuilder{
 	"HTTPS":     newHTTPProxyClient,
 }
 
-func NewProxyClient(proxy string) (Dial, error) {
-	return NewProxyClientWithDial(proxy, net.Dial)
-}
+func NewProxyClient(proxy string) (Dial, error)           { return NewProxyClientWithDial(proxy, net.Dial) }
+func NewProxyClientChain(proxies ...string) (Dial, error) { return NewProxyClientChainWithDial(proxies, net.Dial) }
 
-func NewProxyClientChain(proxies []string) (Dial, error) {
-	return NewProxyClientChainWithDial(proxies, net.Dial)
-}
-
-func NewProxyClientWithDial(proxy string, dial Dial) (Dial, error) {
+func NewProxyClientWithDial(proxy string, dial Dial) (_ Dial, err error) {
 	link, err := url.Parse(proxy)
 	if err != nil {
-		return nil, err
+		return
 	}
 	link = normalizeLink(*link)
 	if factory, ok := schemes[link.Scheme]; ok {
 		return factory(link, dial)
 	}
-	return nil, errors.New("Unsupported proxy client.")
+	err = errors.New("Unsupported proxy client.")
+	return
 }
 
 func NewProxyClientChainWithDial(proxies []string, upstreamDial Dial) (dial Dial, err error) {
@@ -70,4 +67,8 @@ func SupportedSchemes() []string {
 		schemeNames = append(schemeNames, schemeName)
 	}
 	return schemeNames
+}
+
+func (dial Dial) WrappedContext() func(ctx context.Context, network, address string) (net.Conn, error) {
+	return func(ctx context.Context, network, address string) (net.Conn, error) { return dial(network, address) }
 }
