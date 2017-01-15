@@ -35,7 +35,6 @@ func normalizeLink(link url.URL) *url.URL {
 }
 
 func DialWithTimeout(timeout time.Duration) Dial {
-	return func(network, address string) (net.Conn, error) {
-		return net.DialTimeout(network, address, timeout)
-	}
+	dialer := net.Dialer{Timeout:timeout}
+	return dialer.Dial
 }
