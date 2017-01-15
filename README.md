@@ -4,6 +4,17 @@ the proxy client library
 
 supported SOCK4, SOCKS4A, SOCKS5, HTTP, HTTPS etc proxy protocols
 
+## Supported Protocols
+- [x] HTTP
+- [x] HTTPS
+- [x] SOCKS4
+- [x] SOCKS4A
+- [x] SOCKS5
+- [x] SOCKS5 with TLS
+- [x] ShadowSocks
+- [x] SSH Agent
+- [ ] VMess
+
 # Documentation
 
 The full documentation is available on [Godoc](//godoc.org/github.com/RouterScript/ProxyClient).
