@@ -10,7 +10,8 @@ import (
 
 func NewSSHAgentProxyClient(proxy *url.URL, upstreamDial Dial) (dial Dial, err error) {
 	if !limitSchemes(proxy, "ssh") {
-		return nil, errors.New("scheme is not SSH")
+		err = errors.New("scheme is not SSH")
+		return
 	}
 	conf := &ssh.ClientConfig{
 		User: proxy.User.Username(),
