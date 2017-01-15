@@ -1,6 +1,7 @@
 package proxyclient
 
 import (
+	"crypto/tls"
 	"net"
 	"net/url"
 	"strings"
@@ -35,6 +36,18 @@ func normalizeLink(link url.URL) *url.URL {
 }
 
 func DialWithTimeout(timeout time.Duration) Dial {
-	dialer := net.Dialer{Timeout:timeout}
+	dialer := net.Dialer{Timeout: timeout}
 	return dialer.Dial
+}
+
+func tlsConfigByProxyURL(proxy *url.URL) *tls.Config {
+	query := proxy.Query()
+	conf := &tls.Config{
+		ServerName:         query.Get("tls-domain"),
+		InsecureSkipVerify: query.Get("tls-insecure-skip-verify") == "true",
+	}
+	if conf.ServerName == "" {
+		conf.ServerName = proxy.Host
+	}
+	return conf
 }

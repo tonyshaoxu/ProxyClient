@@ -1,7 +1,6 @@
 package proxyclient
 
 import (
-	"crypto/tls"
 	"errors"
 	"net"
 	"net/url"
@@ -32,27 +31,23 @@ func newRejectProxyClient(_ *url.URL, _ Dial) (dial Dial, err error) {
 
 func newHTTPProxyClient(proxy *url.URL, upstreamDial Dial) (dial Dial, err error) {
 	client := httpProxy.Client{
-		Proxy:       *proxy,
-		TLSConfig:   &tls.Config{
-			ServerName:        proxy.Query().Get("tls-domain"),
-			InsecureSkipVerify:proxy.Query().Get("tls-insecure-skip-verify") == "true",
-		},
-		UpstreamDial:upstreamDial,
+		Proxy:        *proxy,
+		TLSConfig:    tlsConfigByProxyURL(proxy),
+		UpstreamDial: upstreamDial,
 	}
-	if client.TLSConfig.ServerName == "" {
-		client.TLSConfig.ServerName = proxy.Host
-	}
-	dial = client.Dial
-	dial = dial.TCPOnly()
+	dial = Dial(client.Dial).TCPOnly()
 	return
 }
 
 func newSocksProxyClient(proxy *url.URL, upstreamDial Dial) (dial Dial, err error) {
-	client, err := socksProxy.NewClient(proxy, &socksProxy.SOCKSConf{Dial:upstreamDial})
+	conf := &socksProxy.SOCKSConf{
+		TLSConfig: tlsConfigByProxyURL(proxy),
+		Dial:      upstreamDial,
+	}
+	client, err := socksProxy.NewClient(proxy, conf)
 	if err != nil {
 		return
 	}
-	dial = client.Dial
-	dial = dial.TCPOnly()
+	dial = Dial(client.Dial).TCPOnly()
 	return
 }

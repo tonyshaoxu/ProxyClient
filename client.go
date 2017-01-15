@@ -13,25 +13,26 @@ type Dial func(network, address string) (net.Conn, error)
 type DialBuilder func(*url.URL, Dial) (Dial, error)
 
 var schemes = map[string]DialBuilder{
-	// DIRECT
-	"DIRECT":    newDirectProxyClient,
-	// REJECT
-	"REJECT":    newRejectProxyClient,
-	// BLACKHOLE
-	"DROP":      newBlackholeProxyClient,
-	"BLACKHOLE": newBlackholeProxyClient,
-	// SOCKS
-	"SOCKS":     newSocksProxyClient,
-	"SOCKS4":    newSocksProxyClient,
-	"SOCKS4A":   newSocksProxyClient,
-	"SOCKS5":    newSocksProxyClient,
-	// HTTP
-	"HTTP":      newHTTPProxyClient,
-	"HTTPS":     newHTTPProxyClient,
+	"DIRECT":     newDirectProxyClient,
+	"REJECT":     newRejectProxyClient,
+	"DROP":       newBlackholeProxyClient,
+	"BLACKHOLE":  newBlackholeProxyClient,
+	"SOCKS":      newSocksProxyClient,
+	"SOCKS4":     newSocksProxyClient,
+	"SOCKS4A":    newSocksProxyClient,
+	"SOCKS5":     newSocksProxyClient,
+	"SOCKS5+TLS": newSocksProxyClient,
+	"HTTP":       newHTTPProxyClient,
+	"HTTPS":      newHTTPProxyClient,
 }
 
-func NewProxyClient(proxy string) (Dial, error)           { return NewProxyClientWithDial(proxy, net.Dial) }
-func NewProxyClientChain(proxies ...string) (Dial, error) { return NewProxyClientChainWithDial(proxies, net.Dial) }
+func NewProxyClient(proxy string) (Dial, error) {
+	return NewProxyClientWithDial(proxy, net.Dial)
+}
+
+func NewProxyClientChain(proxies ...string) (Dial, error) {
+	return NewProxyClientChainWithDial(proxies, net.Dial)
+}
 
 func NewProxyClientWithDial(proxy string, dial Dial) (_ Dial, err error) {
 	link, err := url.Parse(proxy)
